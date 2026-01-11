@@ -3,306 +3,1067 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Y-314 BIOMONITOR PGV0.05 - Advanced System</title>
-    <link rel="stylesheet" href="css/main.css">
-    <link rel="stylesheet" href="css/animations.css">
-    <link rel="stylesheet" href="css/glassmorphism.css">
-    <link rel="stylesheet" href="css/neon.css">
+    <title>Y-314 BioMonitor - Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --cyan: #00f5ff;
+            --pink: #ff006e;
+            --green: #39ff14;
+            --yellow: #ffbe0b;
+            --purple: #b300ff;
+            --red: #ff0055;
+            --white: #ffffff;
+            --dark1: #0a0e27;
+            --dark2: #050812;
+            --dark3: #0f0a1f;
+            --glass-bg: rgba(15, 10, 31, 0.35);
+            --glass-border: rgba(0, 245, 255, 0.2);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark2) 0%, var(--dark3) 50%, var(--dark1) 100%);
+            color: var(--white);
+            overflow-x: hidden;
+            background-attachment: fixed;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 50%, rgba(0, 245, 255, 0.03) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(255, 0, 110, 0.03) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        header {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-bottom: 2px solid var(--glass-border);
+            padding: 16px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--cyan);
+            text-shadow: 0 0 20px var(--cyan);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        nav {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            flex: 1;
+        }
+
+        .nav-btn {
+            padding: 8px 16px;
+            background: rgba(0, 245, 255, 0.1);
+            border: 1px solid var(--cyan);
+            color: var(--cyan);
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            font-size: 13px;
+        }
+
+        .nav-btn:hover {
+            background: var(--cyan);
+            color: var(--dark1);
+            box-shadow: 0 0 20px var(--cyan);
+        }
+
+        .nav-btn.active {
+            background: var(--cyan);
+            color: var(--dark1);
+            box-shadow: 0 0 30px var(--cyan);
+        }
+
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-left: 1px solid var(--glass-border);
+            padding-left: 12px;
+        }
+
+        .user-name {
+            color: var(--yellow);
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .logout-btn {
+            padding: 8px 16px;
+            background: var(--red);
+            border: none;
+            color: white;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .logout-btn:hover {
+            box-shadow: 0 0 20px var(--red);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+            min-height: calc(100vh - 80px);
+        }
+
+        .section {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h2 {
+            color: var(--cyan);
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px var(--cyan);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .panel {
+            background: var(--glass-bg);
+            border: 2px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .vital-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .vital-item:last-child {
+            border-bottom: none;
+        }
+
+        .vital-label {
+            font-weight: 600;
+            color: var(--yellow);
+        }
+
+        .vital-value {
+            font-size: 18px;
+            color: var(--green);
+            font-weight: bold;
+            text-shadow: 0 0 10px var(--green);
+        }
+
+        .vital-unit {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-left: 8px;
+        }
+
+        .slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: linear-gradient(90deg, var(--green), var(--cyan), var(--pink));
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+            cursor: pointer;
+            margin: 8px 0;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--cyan);
+            cursor: pointer;
+            box-shadow: 0 0 15px var(--cyan);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--cyan);
+            cursor: pointer;
+            box-shadow: 0 0 15px var(--cyan);
+            border: none;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--cyan);
+            font-size: 13px;
+        }
+
+        .btn {
+            padding: 10px 16px;
+            border: 2px solid;
+            border-radius: 6px;
+            background: transparent;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 12px;
+        }
+
+        .btn-primary {
+            border-color: var(--green);
+            color: var(--green);
+        }
+
+        .btn-primary:hover {
+            background: var(--green);
+            color: var(--dark1);
+            box-shadow: 0 0 20px var(--green);
+        }
+
+        .btn-danger {
+            border-color: var(--red);
+            color: var(--red);
+        }
+
+        .btn-danger:hover {
+            background: var(--red);
+            color: white;
+            box-shadow: 0 0 20px var(--red);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .button-group .btn {
+            flex: 1;
+        }
+
+        .chat-messages {
+            background: var(--glass-bg);
+            border: 2px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 16px;
+            height: 400px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .message {
+            display: flex;
+            animation: slideIn 0.3s ease;
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message.ai {
+            justify-content: flex-start;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 8px;
+            word-wrap: break-word;
+            font-size: 13px;
+        }
+
+        .message.user .message-content {
+            background: var(--cyan);
+            color: var(--dark1);
+            border-radius: 15px 0 15px 15px;
+        }
+
+        .message.ai .message-content {
+            background: rgba(0, 245, 255, 0.1);
+            border: 1px solid var(--cyan);
+            color: var(--cyan);
+            border-radius: 0 15px 15px 15px;
+        }
+
+        .chat-input-group {
+            display: flex;
+            gap: 12px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 12px 14px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 6px;
+            color: var(--white);
+            font-size: 13px;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: var(--cyan);
+            box-shadow: 0 0 20px rgba(0, 245, 255, 0.3);
+        }
+
+        .chat-send {
+            padding: 12px 20px;
+            background: var(--cyan);
+            border: none;
+            border-radius: 6px;
+            color: var(--dark1);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .chat-send:hover {
+            box-shadow: 0 0 20px var(--cyan);
+        }
+
+        .illness-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .illness-card {
+            background: var(--glass-bg);
+            border: 2px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .illness-card:hover {
+            border-color: var(--pink);
+            box-shadow: 0 8px 24px rgba(0, 245, 255, 0.2);
+            transform: translateY(-5px);
+        }
+
+        .illness-card.active {
+            background: rgba(255, 0, 110, 0.15);
+            border-color: var(--pink);
+            box-shadow: 0 0 30px rgba(255, 0, 110, 0.3);
+        }
+
+        .illness-name {
+            font-weight: 700;
+            color: var(--yellow);
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .illness-effect {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.5;
+        }
+
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .comparison-panel h3 {
+            color: var(--green);
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .upload-area {
+            background: var(--glass-bg);
+            border: 3px dashed var(--cyan);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .upload-area:hover {
+            background: rgba(0, 245, 255, 0.1);
+            border-color: var(--green);
+        }
+
+        .upload-area.drag-over {
+            background: rgba(0, 245, 255, 0.2);
+            border-color: var(--green);
+            box-shadow: 0 0 30px rgba(0, 245, 255, 0.3);
+        }
+
+        .upload-icon {
+            font-size: 40px;
+            color: var(--cyan);
+            text-shadow: 0 0 20px var(--cyan);
+        }
+
+        .upload-text {
+            color: var(--cyan);
+            font-weight: 600;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: rgba(0, 245, 255, 0.1);
+            color: var(--green);
+            padding: 12px;
+            text-align: left;
+            border-bottom: 2px solid var(--cyan);
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid var(--glass-border);
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        tr:hover {
+            background: rgba(0, 245, 255, 0.05);
+        }
+
+        @media (max-width: 768px) {
+            .grid, .analysis-grid, .comparison {
+                grid-template-columns: 1fr;
+            }
+
+            .header-content {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            nav {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .container {
+                padding: 12px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <!-- ============ NEON BACKGROUND ============ -->
-    <div class="neon-bg">
-        <div class="neon-grid"></div>
-        <div class="neon-glow glow-1"></div>
-        <div class="neon-glow glow-2"></div>
-        <div class="neon-glow glow-3"></div>
+
+<header>
+    <div class="header-content">
+        <div class="logo">⚕️ Y-314 BioMonitor</div>
+        <nav>
+            <button class="nav-btn active" onclick="switchSection('dashboard')">📊 Dashboard</button>
+            <button class="nav-btn" onclick="switchSection('vitals')">📈 Vitals</button>
+            <button class="nav-btn" onclick="switchSection('chat')">🤖 Chat</button>
+            <button class="nav-btn" onclick="switchSection('illness')">🧪 Disease Lab</button>
+            <button class="nav-btn" onclick="switchSection('analysis')">📁 Analysis</button>
+        </nav>
+        <div class="user-section">
+            <div class="user-name" id="userName">User</div>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
     </div>
+</header>
 
-    <!-- ============ LOGIN PAGE ============ -->
-    <div id="login-container" class="login-container">
-        <div class="login-box glass-effect">
-            <div class="login-header">
-                <div class="login-logo">Y-314</div>
-                <div class="login-subtitle">BIOMONITOR PGV0.05</div>
+<div class="container">
+
+    <!-- DASHBOARD SECTION -->
+    <div id="dashboard" class="section active">
+        <h2>Welcome to Y-314 BioMonitor</h2>
+        <div class="grid">
+            <div class="panel">
+                <h3 style="color: var(--green); margin-bottom: 16px;">📊 Current Status</h3>
+                <div class="vital-item">
+                    <span class="vital-label">Heart Rate</span>
+                    <span><span class="vital-value" id="dashHR">72</span><span class="vital-unit">BPM</span></span>
+                </div>
+                <div class="vital-item">
+                    <span class="vital-label">Temperature</span>
+                    <span><span class="vital-value" id="dashTemp">37.0</span><span class="vital-unit">°C</span></span>
+                </div>
+                <div class="vital-item">
+                    <span class="vital-label">O₂ Saturation</span>
+                    <span><span class="vital-value" id="dashO2">98</span><span class="vital-unit">%</span></span>
+                </div>
             </div>
-
-            <div class="login-tabs">
-                <button class="login-tab active" onclick="switchLoginTab('signin')">▶ SIGN IN</button>
-                <button class="login-tab" onclick="switchLoginTab('signup')">✓ CREATE ACCOUNT</button>
+            <div class="panel">
+                <h3 style="color: var(--green); margin-bottom: 16px;">📊 Your Statistics</h3>
+                <div class="vital-item">
+                    <span class="vital-label">Vitals Recorded</span>
+                    <span style="color: var(--cyan); font-weight: bold;" id="statVitals">0</span>
+                </div>
+                <div class="vital-item">
+                    <span class="vital-label">Illnesses Tested</span>
+                    <span style="color: var(--cyan); font-weight: bold;" id="statIllness">0</span>
+                </div>
+                <div class="vital-item">
+                    <span class="vital-label">Data Analyzed</span>
+                    <span style="color: var(--cyan); font-weight: bold;" id="statAnalysis">0</span>
+                </div>
             </div>
-
-            <!-- SIGN IN FORM -->
-            <form id="signin-form" class="login-form active" onsubmit="handleSignIn(event)">
-                <div class="login-error" id="signin-error"></div>
-                <div class="login-form-group">
-                    <label class="login-label">📧 Email</label>
-                    <input type="email" id="signin-email" class="login-input" placeholder="agent@y314.com" required>
-                </div>
-                <div class="login-form-group">
-                    <label class="login-label">🔑 Password</label>
-                    <input type="password" id="signin-password" class="login-input" placeholder="••••••••••" required>
-                </div>
-                <div class="login-checkbox">
-                    <input type="checkbox" id="remember-me">
-                    <label for="remember-me">Remember me</label>
-                </div>
-                <button type="submit" class="login-button">▶ ENTER SYSTEM</button>
-            </form>
-
-            <!-- SIGN UP FORM -->
-            <form id="signup-form" class="login-form" onsubmit="handleSignUp(event)">
-                <div class="login-error" id="signup-error"></div>
-                <div class="login-form-group">
-                    <label class="login-label">👤 Full Name</label>
-                    <input type="text" id="signup-name" class="login-input" placeholder="Agent Alpha" required>
-                </div>
-                <div class="login-form-group">
-                    <label class="login-label">📧 Email</label>
-                    <input type="email" id="signup-email" class="login-input" placeholder="agent@y314.com" required>
-                </div>
-                <div class="login-form-group">
-                    <label class="login-label">🔑 Password</label>
-                    <input type="password" id="signup-password" class="login-input" placeholder="••••••••••" required>
-                </div>
-                <div class="login-form-group">
-                    <label class="login-label">🔑 Confirm Password</label>
-                    <input type="password" id="signup-confirm" class="login-input" placeholder="••••••••••" required>
-                </div>
-                <div class="login-form-row">
-                    <div class="login-form-group">
-                        <label class="login-label">⚧ Gender</label>
-                        <select id="signup-gender" class="login-input" required>
-                            <option value="">Select...</option>
-                            <option value="male">Male</option>
-                            <option value="female">Female</option>
-                            <option value="other">Other</option>
-                        </select>
-                    </div>
-                    <div class="login-form-group">
-                        <label class="login-label">🎂 Age</label>
-                        <input type="number" id="signup-age" class="login-input" min="13" max="120" required>
-                    </div>
-                </div>
-                <div class="login-checkbox">
-                    <input type="checkbox" id="agree-terms" required>
-                    <label for="agree-terms">I agree to terms & conditions</label>
-                </div>
-                <button type="submit" class="login-button">✓ CREATE ACCOUNT</button>
-            </form>
-
-            <div class="login-footer">🔒 Secure Authentication | PGV0.05</div>
         </div>
     </div>
 
-    <!-- ============ MAIN DASHBOARD ============ -->
-    <div id="main-dashboard" class="dashboard hidden">
-        <!-- HEADER -->
-        <header class="dashboard-header glass-effect">
-            <div class="header-title">🔮 Y-314 BIOMONITOR PGV0.05</div>
-            <div style="flex: 1;"></div>
-            <div class="header-user">
-                <span>👤 <span id="user-name">Agent</span></span>
-                <span>🕐 <span id="login-time-dash">00:00:00</span></span>
+    <!-- VITALS SECTION -->
+    <div id="vitals" class="section">
+        <h2>Real-Time Vital Signs Monitoring</h2>
+        <div class="grid">
+            <div class="panel">
+                <h3 style="color: var(--green); margin-bottom: 16px;">📊 Current Vitals</h3>
+                <div class="vital-item">
+                    <span class="vital-label">Heart Rate</span>
+                    <span><span class="vital-value" id="hr">72</span><span class="vital-unit">BPM</span></span>
+                </div>
+                <div class="vital-item">
+                    <span class="vital-label">Blood Pressure</span>
+                    <span><span class="vital-value" id="bp">120/80</span><span class="vital-unit">mmHg</span></span>
+                </div>
+                <div class="vital-item">
+                    <span class="vital-label">Temperature</span>
+                    <span><span class="vital-value" id="temp">37.0</span><span class="vital-unit">°C</span></span>
+                </div>
+                <div class="vital-item">
+                    <span class="vital-label">O₂ Saturation</span>
+                    <span><span class="vital-value" id="o2">98</span><span class="vital-unit">%</span></span>
+                </div>
             </div>
-            <div class="header-buttons">
-                <button class="header-btn" onclick="toggleFullscreen()">⛶ FULLSCREEN</button>
-                <button class="header-btn logout" onclick="handleLogout()">✕ LOGOUT</button>
+
+            <div class="panel">
+                <h3 style="color: var(--green); margin-bottom: 16px;">⚙️ Controls</h3>
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Activity Level</span>
+                        <span id="activityValue">0</span>
+                    </div>
+                    <input type="range" class="slider" id="activitySlider" min="0" max="100" value="0" oninput="updateVitals()">
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Stress Level</span>
+                        <span id="stressValue">0</span>
+                    </div>
+                    <input type="range" class="slider" id="stressSlider" min="0" max="100" value="0" oninput="updateVitals()">
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="startSimulation()">▶ START</button>
+                    <button class="btn btn-danger" onclick="stopSimulation()">⏹ STOP</button>
+                </div>
             </div>
-        </header>
-
-        <!-- SECTION NAVIGATION -->
-        <div class="section-nav glass-effect">
-            <button class="section-btn active" onclick="switchSection('models')">🧬 MODELS</button>
-            <button class="section-btn" onclick="switchSection('simulation')">🧪 SIMULATION</button>
-            <button class="section-btn" onclick="switchSection('chatbox')">🤖 CHATBOX</button>
-            <button class="section-btn" onclick="switchSection('illness')">🦠 ILLNESS LAB</button>
-            <button class="section-btn" onclick="switchSection('analysis')">📊 ANALYSIS</button>
-        </div>
-
-        <!-- MAIN CONTENT -->
-        <div class="dashboard-content">
-
-            <!-- ========== SECTION 1: MODELS WITH SIDEBAR ========== -->
-            <section id="models" class="section-container active-section">
-                <div class="models-layout">
-                    <!-- LEFT SIDEBAR: Categories -->
-                    <div class="models-sidebar glass-effect">
-                        <h3 class="sidebar-title">🧬 SYSTEMS</h3>
-                        <div class="categories-list" id="categories-list"></div>
-                    </div>
-
-                    <!-- MIDDLE/RIGHT: Subcategories & 3D Models -->
-                    <div class="models-content">
-                        <div class="subcategories-panel glass-effect" id="subcategories-panel">
-                            <h3 class="panel-title">Select a system</h3>
-                            <div class="subcategories-grid" id="subcategories-grid"></div>
-                        </div>
-
-                        <div class="model-viewer-panel glass-effect" id="model-viewer-panel">
-                            <h3 class="panel-title">Model Viewer</h3>
-                            <div class="canvas-container">
-                                <canvas id="model-canvas"></canvas>
-                                <div class="wireframe-controls">
-                                    <button class="wireframe-btn" onclick="toggleWireframe()">⛓ WIREFRAME</button>
-                                    <button class="wireframe-btn" onclick="rotateModel(45, 0)">↻ ROTATE</button>
-                                    <button class="wireframe-btn" onclick="zoomModel(1.2)">🔍 ZOOM</button>
-                                    <button class="wireframe-btn" onclick="resetModel()">↺ RESET</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- ========== SECTION 2: SIMULATION ========== -->
-            <section id="simulation" class="section-container">
-                <div class="section-title">🧪 VITAL SIMULATION</div>
-                <div class="simulation-grid">
-                    <div class="vital-card glass-effect">
-                        <div class="vital-label">❤️ Heart Rate</div>
-                        <div class="vital-value" id="vital-hr">72</div>
-                        <div class="vital-unit">BPM</div>
-                    </div>
-                    <div class="vital-card glass-effect">
-                        <div class="vital-label">🌡️ Temperature</div>
-                        <div class="vital-value" id="vital-temp">37.0</div>
-                        <div class="vital-unit">°C</div>
-                    </div>
-                    <div class="vital-card glass-effect">
-                        <div class="vital-label">💨 O₂ Saturation</div>
-                        <div class="vital-value" id="vital-o2">98</div>
-                        <div class="vital-unit">%</div>
-                    </div>
-                    <div class="vital-card glass-effect">
-                        <div class="vital-label">🩸 Blood Pressure</div>
-                        <div class="vital-value" id="vital-bp">120/80</div>
-                        <div class="vital-unit">mmHg</div>
-                    </div>
-                </div>
-
-                <div class="control-group glass-effect">
-                    <label class="control-label">📊 EXPERIMENT CONTROLS</label>
-                    <div class="slider-group">
-                        <label>Physical Activity (0-100)</label>
-                        <input type="range" id="activity-slider" min="0" max="100" value="50">
-                        <span id="activity-value">50%</span>
-                    </div>
-                    <div class="slider-group">
-                        <label>Stress Level (0-100)</label>
-                        <input type="range" id="stress-slider" min="0" max="100" value="35">
-                        <span id="stress-value">35%</span>
-                    </div>
-                </div>
-
-                <div class="sim-buttons">
-                    <button class="sim-btn" onclick="startSimulation()">▶ START</button>
-                    <button class="sim-btn" onclick="stopSimulation()">⏸ STOP</button>
-                    <button class="sim-btn" onclick="resetSimulation()">↻ RESET</button>
-                    <button class="sim-btn" onclick="exportData()">↓ EXPORT</button>
-                </div>
-            </section>
-
-            <!-- ========== SECTION 3: CHATBOX ========== -->
-            <section id="chatbox" class="section-container">
-                <div class="chatbox-container glass-effect">
-                    <div class="chat-messages" id="chat-messages"></div>
-                    <div class="chat-input-area">
-                        <input type="text" id="chat-input" class="chat-input" placeholder="Ask about vitals, models, or analysis...">
-                        <button class="chat-send" onclick="sendChatMessage()">SEND</button>
-                    </div>
-                </div>
-            </section>
-
-            <!-- ========== SECTION 4: ILLNESS LAB ========== -->
-            <section id="illness" class="section-container">
-                <div class="section-title">🦠 ILLNESS EXPERIMENTATION LAB</div>
-                <div class="illness-grid">
-                    <div class="illness-card glass-effect" onclick="selectIllness('flu')">
-                        <div class="illness-icon">🤒</div>
-                        <div class="illness-name">Common Flu</div>
-                        <div class="illness-desc">Respiratory infection</div>
-                    </div>
-                    <div class="illness-card glass-effect" onclick="selectIllness('diabetes')">
-                        <div class="illness-icon">🩺</div>
-                        <div class="illness-name">Diabetes</div>
-                        <div class="illness-desc">Blood sugar regulation</div>
-                    </div>
-                    <div class="illness-card glass-effect" onclick="selectIllness('hypertension')">
-                        <div class="illness-icon">💔</div>
-                        <div class="illness-name">Hypertension</div>
-                        <div class="illness-desc">High blood pressure</div>
-                    </div>
-                    <div class="illness-card glass-effect" onclick="selectIllness('anemia')">
-                        <div class="illness-icon">🩸</div>
-                        <div class="illness-name">Anemia</div>
-                        <div class="illness-desc">Low red blood cells</div>
-                    </div>
-                    <div class="illness-card glass-effect" onclick="selectIllness('asthma')">
-                        <div class="illness-icon">💨</div>
-                        <div class="illness-name">Asthma</div>
-                        <div class="illness-desc">Respiratory condition</div>
-                    </div>
-                    <div class="illness-card glass-effect" onclick="selectIllness('covid')">
-                        <div class="illness-icon">🦠</div>
-                        <div class="illness-name">COVID-19</div>
-                        <div class="illness-desc">Viral infection</div>
-                    </div>
-                </div>
-
-                <div class="illness-details glass-effect" id="illness-details" style="display:none;">
-                    <h3 id="illness-title"></h3>
-                    <p id="illness-description"></p>
-                    <div class="vital-changes" id="vital-changes"></div>
-                    <button class="sim-btn" onclick="applyIllness()">✓ APPLY CONDITION</button>
-                    <button class="sim-btn" onclick="clearIllness()">✕ CLEAR</button>
-                </div>
-            </section>
-
-            <!-- ========== SECTION 5: DATA ANALYSIS ========== -->
-            <section id="analysis" class="section-container">
-                <div class="section-title">📊 DATA ANALYSIS & IMPORT</div>
-                
-                <div class="analysis-header glass-effect">
-                    <div class="import-section">
-                        <label class="import-label">📁 Import CSV Data</label>
-                        <input type="file" id="csv-input" accept=".csv" onchange="handleCSVUpload(event)">
-                        <p class="import-hint">Upload patient data in CSV format</p>
-                    </div>
-                </div>
-
-                <div class="analysis-panels">
-                    <div class="analysis-panel glass-effect">
-                        <h3>Patient Data Analysis</h3>
-                        <div id="analysis-content">
-                            <p>Import CSV data to analyze patient vitals</p>
-                        </div>
-                    </div>
-
-                    <div class="analysis-panel glass-effect">
-                        <h3>Python Analysis Results</h3>
-                        <div id="python-results">
-                            <p>Results will appear here after server analysis</p>
-                        </div>
-                    </div>
-
-                    <div class="analysis-panel glass-effect">
-                        <h3>Data Visualization</h3>
-                        <canvas id="data-chart"></canvas>
-                    </div>
-                </div>
-            </section>
-
         </div>
     </div>
 
-    <!-- SCRIPTS -->
-    <script src="js/globals.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/models.js"></script>
-    <script src="js/simulation.js"></script>
-    <script src="js/chatbox.js"></script>
-    <script src="js/illness.js"></script>
-    <script src="js/analysis.js"></script>
-    <script src="js/app.js"></script>
+    <!-- CHAT SECTION -->
+    <div id="chat" class="section">
+        <h2>🤖 AI Medical Assistant</h2>
+        <div class="panel">
+            <div class="chat-messages" id="chatMessages"></div>
+            <div class="chat-input-group">
+                <input type="text" class="chat-input" id="chatInput" placeholder="Ask about health, diseases, symptoms..." onkeypress="handleChatKeypress(event)">
+                <button class="chat-send" onclick="sendChatMessage()">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ILLNESS LAB SECTION -->
+    <div id="illness" class="section">
+        <h2>🧪 Disease Simulation Lab</h2>
+        <div class="illness-grid" id="illnessGrid"></div>
+        <div class="panel" id="comparisonPanel" style="display: none; margin-top: 24px;">
+            <div class="comparison">
+                <div>
+                    <h3>Normal Vitals</h3>
+                    <div id="normalVitals" style="font-size: 13px; line-height: 2; color: rgba(255,255,255,0.8);"></div>
+                </div>
+                <div>
+                    <h3>With Disease</h3>
+                    <div id="affectedVitals" style="font-size: 13px; line-height: 2; color: rgba(255,255,255,0.8);"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ANALYSIS SECTION -->
+    <div id="analysis" class="section">
+        <h2>📈 Data Analysis</h2>
+        <div class="analysis-grid">
+            <div class="upload-area" id="uploadArea" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+                <div class="upload-icon">📁</div>
+                <div class="upload-text">Drag CSV file here or click to upload</div>
+                <input type="file" id="fileInput" accept=".csv" style="display: none;" onchange="handleFileSelect(event)">
+            </div>
+            <div class="panel">
+                <h3 style="color: var(--green); margin-bottom: 16px;">Analysis Results</h3>
+                <table>
+                    <tr>
+                        <th>Metric</th>
+                        <th>Value</th>
+                    </tr>
+                    <tr>
+                        <td>Mean</td>
+                        <td id="meanVal">-</td>
+                    </tr>
+                    <tr>
+                        <td>Median</td>
+                        <td id="medianVal">-</td>
+                    </tr>
+                    <tr>
+                        <td>Std Dev</td>
+                        <td id="stdVal">-</td>
+                    </tr>
+                    <tr>
+                        <td>Min</td>
+                        <td id="minVal">-</td>
+                    </tr>
+                    <tr>
+                        <td>Max</td>
+                        <td id="maxVal">-</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // ============================================================
+    // AUTHENTICATION CHECK
+    // ============================================================
+
+    let currentUser = null;
+    let userData = { vitals: [], illness: [], analysis: [] };
+
+    function checkAuth() {
+        const session = localStorage.getItem('Y314_SESSION');
+        if (!session) {
+            window.location.href = 'login-working.html';
+            return;
+        }
+
+        currentUser = JSON.parse(session);
+        document.getElementById('userName').textContent = currentUser.firstName || 'User';
+
+        // Load user data
+        const userDataKey = `Y314_USER_DATA_${currentUser.email}`;
+        const stored = localStorage.getItem(userDataKey);
+        if (stored) {
+            userData = JSON.parse(stored);
+        }
+
+        updateStats();
+    }
+
+    function logout() {
+        localStorage.removeItem('Y314_SESSION');
+        window.location.href = 'login-working.html';
+    }
+
+    function saveUserData() {
+        const userDataKey = `Y314_USER_DATA_${currentUser.email}`;
+        localStorage.setItem(userDataKey, JSON.stringify(userData));
+        updateStats();
+    }
+
+    function updateStats() {
+        document.getElementById('statVitals').textContent = userData.vitals.length;
+        document.getElementById('statIllness').textContent = userData.illness.length;
+        document.getElementById('statAnalysis').textContent = userData.analysis.length;
+    }
+
+    // ============================================================
+    // SECTION SWITCHING
+    // ============================================================
+
+    function switchSection(sectionId) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+
+        document.getElementById(sectionId).classList.add('active');
+        event.target.classList.add('active');
+
+        if (sectionId === 'illness') initIllnessLab();
+        if (sectionId === 'chat') initChat();
+    }
+
+    // ============================================================
+    // VITALS SYSTEM
+    // ============================================================
+
+    let simulationRunning = false;
+    let simulationInterval = null;
+    let activeIllness = null;
+
+    const ILLNESSES = [
+        { name: 'Diabetes', emoji: '🩺', effects: { hr: 25, temp: 0.5 }, desc: 'Blood sugar disorder' },
+        { name: 'Hypertension', emoji: '⚡', effects: { systolic: 20, diastolic: 10 }, desc: 'High BP' },
+        { name: 'Hypothermia', emoji: '❄️', effects: { temp: -3, hr: -20 }, desc: 'Low temp' },
+        { name: 'Pneumonia', emoji: '🫁', effects: { hr: 30, o2: -8 }, desc: 'Lung infection' },
+        { name: 'Tachycardia', emoji: '💨', effects: { hr: 40 }, desc: 'Fast heartbeat' }
+    ];
+
+    let vitals = { hr: 72, systolic: 120, diastolic: 80, temp: 37.0, o2: 98 };
+
+    function updateVitals() {
+        const activity = parseInt(document.getElementById('activitySlider').value);
+        const stress = parseInt(document.getElementById('stressSlider').value);
+
+        document.getElementById('activityValue').textContent = activity;
+        document.getElementById('stressValue').textContent = stress;
+
+        if (simulationRunning) {
+            calculateVitals(activity, stress);
+        }
+    }
+
+    function calculateVitals(activity, stress) {
+        let hr = 72 + (activity * 0.5) + (stress * 0.3);
+        let sys = 120 + (activity * 0.2) + (stress * 0.3);
+        let dia = 80 + (activity * 0.1) + (stress * 0.2);
+        let temp = 37 + (activity * 0.02) + (stress * 0.01) + (Math.random() * 0.2 - 0.1);
+        let o2 = 98 - (activity * 0.08) - (Math.random() * 0.5);
+
+        if (activeIllness !== null) {
+            const illness = ILLNESSES[activeIllness];
+            if (illness.effects.hr) hr += illness.effects.hr;
+            if (illness.effects.systolic) sys += illness.effects.systolic;
+            if (illness.effects.diastolic) dia += illness.effects.diastolic;
+            if (illness.effects.temp) temp += illness.effects.temp;
+            if (illness.effects.o2) o2 += illness.effects.o2;
+        }
+
+        hr = Math.max(40, Math.min(180, Math.round(hr)));
+        sys = Math.max(80, Math.min(200, Math.round(sys)));
+        dia = Math.max(50, Math.min(120, Math.round(dia)));
+        temp = Math.max(35, Math.min(40, temp.toFixed(1)));
+        o2 = Math.max(85, Math.min(100, Math.round(o2)));
+
+        vitals = { hr, systolic: sys, diastolic: dia, temp, o2 };
+        displayVitals();
+
+        userData.vitals.push({
+            timestamp: new Date().toISOString(),
+            ...vitals,
+            activity, stress
+        });
+
+        saveUserData();
+    }
+
+    function displayVitals() {
+        document.getElementById('hr').textContent = vitals.hr;
+        document.getElementById('dashHR').textContent = vitals.hr;
+        document.getElementById('bp').textContent = `${vitals.systolic}/${vitals.diastolic}`;
+        document.getElementById('temp').textContent = vitals.temp;
+        document.getElementById('dashTemp').textContent = vitals.temp;
+        document.getElementById('o2').textContent = vitals.o2;
+        document.getElementById('dashO2').textContent = vitals.o2;
+    }
+
+    function startSimulation() {
+        if (simulationRunning) return;
+        simulationRunning = true;
+
+        simulationInterval = setInterval(() => {
+            const activity = parseInt(document.getElementById('activitySlider').value);
+            const stress = parseInt(document.getElementById('stressSlider').value);
+            calculateVitals(activity, stress);
+        }, 1000);
+    }
+
+    function stopSimulation() {
+        simulationRunning = false;
+        clearInterval(simulationInterval);
+    }
+
+    // ============================================================
+    // CHAT
+    // ============================================================
+
+    let chatHistory = [];
+
+    const AI_RESPONSES = {
+        'fever': 'Fever is elevated body temperature above 38°C. Rest and hydration help.',
+        'heart': 'Normal heart rate is 60-100 BPM at rest.',
+        'blood': 'Normal blood pressure is around 120/80 mmHg.',
+        'stress': 'Stress increases heart rate and blood pressure. Try meditation.',
+        'sleep': 'Quality sleep improves immune function. Aim for 7-9 hours daily.',
+        'exercise': 'Exercise strengthens your heart. Aim for 30 min daily.',
+        'hello': 'Hello! I\'m your medical assistant. Ask me anything about health.',
+        'default': 'That\'s interesting. Can you tell me more or ask about specific health topics?'
+    };
+
+    function initChat() {
+        if (chatHistory.length === 0) {
+            addMessage('Hello! I\'m your medical assistant. Ask me about health, diseases, or symptoms.', 'ai');
+        }
+    }
+
+    function addMessage(text, sender) {
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `message ${sender}`;
+        msgDiv.innerHTML = `<div class="message-content">${text}</div>`;
+        document.getElementById('chatMessages').appendChild(msgDiv);
+        document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
+        chatHistory.push({ text, sender, timestamp: new Date().toISOString() });
+    }
+
+    function sendChatMessage() {
+        const input = document.getElementById('chatInput');
+        const message = input.value.trim();
+        if (!message) return;
+
+        addMessage(message, 'user');
+        input.value = '';
+
+        setTimeout(() => {
+            const msg = message.toLowerCase();
+            let response = AI_RESPONSES['default'];
+            for (let key in AI_RESPONSES) {
+                if (msg.includes(key)) {
+                    response = AI_RESPONSES[key];
+                    break;
+                }
+            }
+            addMessage(response, 'ai');
+        }, 300);
+    }
+
+    function handleChatKeypress(event) {
+        if (event.key === 'Enter') sendChatMessage();
+    }
+
+    // ============================================================
+    // ILLNESS LAB
+    // ============================================================
+
+    function initIllnessLab() {
+        const grid = document.getElementById('illnessGrid');
+        grid.innerHTML = '';
+
+        ILLNESSES.forEach((illness, index) => {
+            const card = document.createElement('div');
+            card.className = 'illness-card' + (activeIllness === index ? ' active' : '');
+            card.innerHTML = `
+                <div class="illness-name">${illness.emoji} ${illness.name}</div>
+                <div class="illness-effect">${illness.desc}</div>
+            `;
+            card.onclick = () => selectIllness(index);
+            grid.appendChild(card);
+        });
+
+        updateComparison();
+    }
+
+    function selectIllness(index) {
+        activeIllness = activeIllness === index ? null : index;
+
+        if (activeIllness !== null) {
+            userData.illness.push({
+                timestamp: new Date().toISOString(),
+                illness: ILLNESSES[activeIllness].name
+            });
+            saveUserData();
+        }
+
+        initIllnessLab();
+        updateVitals();
+    }
+
+    function updateComparison() {
+        const panel = document.getElementById('comparisonPanel');
+        if (activeIllness === null) {
+            panel.style.display = 'none';
+            return;
+        }
+
+        panel.style.display = 'block';
+        document.getElementById('normalVitals').innerHTML = `
+            <div>HR: 72 BPM</div>
+            <div>BP: 120/80 mmHg</div>
+            <div>Temp: 37.0°C</div>
+            <div>O₂: 98%</div>
+        `;
+        document.getElementById('affectedVitals').innerHTML = `
+            <div>HR: ${vitals.hr} BPM</div>
+            <div>BP: ${vitals.systolic}/${vitals.diastolic} mmHg</div>
+            <div>Temp: ${vitals.temp}°C</div>
+            <div>O₂: ${vitals.o2}%</div>
+        `;
+    }
+
+    // ============================================================
+    // ANALYSIS
+    // ============================================================
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const uploadArea = document.getElementById('uploadArea');
+        uploadArea.onclick = () => document.getElementById('fileInput').click();
+    });
+
+    function handleDragOver(e) {
+        e.preventDefault();
+        document.getElementById('uploadArea').classList.add('drag-over');
+    }
+
+    function handleDragLeave(e) {
+        e.preventDefault();
+        document.getElementById('uploadArea').classList.remove('drag-over');
+    }
+
+    function handleDrop(e) {
+        e.preventDefault();
+        document.getElementById('uploadArea').classList.remove('drag-over');
+        const files = e.dataTransfer.files;
+        if (files.length > 0) handleFileSelect({ target: { files } });
+    }
+
+    function handleFileSelect(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const csv = event.target.result;
+            const lines = csv.split('\n');
+            const values = [];
+
+            for (let i = 1; i < lines.length; i++) {
+                const cells = lines[i].split(',');
+                for (let cell of cells) {
+                    const num = parseFloat(cell.trim());
+                    if (!isNaN(num)) values.push(num);
+                }
+            }
+
+            if (values.length === 0) return;
+
+            values.sort((a, b) => a - b);
+            const mean = (values.reduce((a, b) => a + b, 0) / values.length).toFixed(2);
+            const median = values[Math.floor(values.length / 2)].toFixed(2);
+            const variance = (values.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / values.length).toFixed(2);
+            const std = Math.sqrt(variance).toFixed(2);
+            const min = values[0].toFixed(2);
+            const max = values[values.length - 1].toFixed(2);
+
+            document.getElementById('meanVal').textContent = mean;
+            document.getElementById('medianVal').textContent = median;
+            document.getElementById('stdVal').textContent = std;
+            document.getElementById('minVal').textContent = min;
+            document.getElementById('maxVal').textContent = max;
+
+            userData.analysis.push({
+                timestamp: new Date().toISOString(),
+                filename: file.name,
+                stats: { mean, median, std, min, max }
+            });
+
+            saveUserData();
+        };
+        reader.readAsText(file);
+    }
+
+    // ============================================================
+    // INIT
+    // ============================================================
+
+    window.onload = () => {
+        console.log('🚀 Y-314 BioMonitor Dashboard Loaded');
+        checkAuth();
+        displayVitals();
+    };
+</script>
+
 </body>
 </html>

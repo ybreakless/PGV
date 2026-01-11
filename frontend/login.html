@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Y-314 BioMonitor - Login & Register</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --cyan: #00f5ff;
+            --pink: #ff006e;
+            --green: #39ff14;
+            --yellow: #ffbe0b;
+            --purple: #b300ff;
+            --red: #ff0055;
+            --dark1: #0a0e27;
+            --dark2: #050812;
+            --dark3: #0f0a1f;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark2) 0%, var(--dark3) 50%, var(--dark1) 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 50%, rgba(0, 245, 255, 0.05) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(255, 0, 110, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .container {
+            display: flex;
+            width: 100%;
+            max-width: 1200px;
+            height: 90vh;
+            max-height: 700px;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 245, 255, 0.15);
+            position: relative;
+            z-index: 2;
+            animation: slideIn 0.6s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .left-panel {
+            flex: 1;
+            background: rgba(15, 10, 31, 0.7);
+            backdrop-filter: blur(20px);
+            border-right: 2px solid rgba(0, 245, 255, 0.2);
+            padding: 50px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            overflow-y: auto;
+        }
+
+        .right-panel {
+            flex: 1;
+            background: linear-gradient(135deg, rgba(0, 245, 255, 0.08) 0%, rgba(255, 0, 110, 0.08) 100%);
+            padding: 50px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 36px;
+            font-weight: bold;
+            color: var(--cyan);
+            text-shadow: 0 0 20px var(--cyan);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .form-title {
+            font-size: 26px;
+            font-weight: bold;
+            color: var(--cyan);
+            margin-bottom: 10px;
+        }
+
+        .form-subtitle {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-size: 11px;
+            color: var(--yellow);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 14px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 245, 255, 0.3);
+            border-radius: 8px;
+            color: white;
+            font-size: 13px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--cyan);
+            background: rgba(0, 245, 255, 0.1);
+            box-shadow: 0 0 20px rgba(0, 245, 255, 0.2);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .toggle-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .toggle-btn {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid rgba(0, 245, 255, 0.3);
+            background: transparent;
+            color: var(--cyan);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-btn.active {
+            background: var(--cyan);
+            color: var(--dark1);
+            border-color: var(--cyan);
+            box-shadow: 0 0 20px rgba(0, 245, 255, 0.3);
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: var(--cyan);
+            border: none;
+            border-radius: 8px;
+            color: var(--dark1);
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-submit:hover {
+            box-shadow: 0 0 30px rgba(0, 245, 255, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        .error {
+            color: var(--red);
+            font-size: 11px;
+            margin-top: 8px;
+            text-align: center;
+        }
+
+        .success {
+            color: var(--green);
+            font-size: 11px;
+            margin-top: 8px;
+            text-align: center;
+        }
+
+        .toggle-form-link {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .toggle-form-link a {
+            color: var(--green);
+            cursor: pointer;
+            text-decoration: underline;
+            transition: color 0.3s ease;
+        }
+
+        .toggle-form-link a:hover {
+            color: var(--cyan);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .demo-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(0, 245, 255, 0.2);
+        }
+
+        .demo-title {
+            font-size: 11px;
+            color: var(--yellow);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .demo-btn {
+            width: 100%;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 245, 255, 0.2);
+            color: rgba(255, 255, 255, 0.8);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 11px;
+            margin-bottom: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .demo-btn:hover {
+            background: rgba(0, 245, 255, 0.1);
+            border-color: var(--cyan);
+            color: var(--cyan);
+        }
+
+        .right-panel-content {
+            max-width: 300px;
+        }
+
+        .right-panel h2 {
+            font-size: 32px;
+            margin-bottom: 20px;
+            color: var(--green);
+        }
+
+        .feature-item {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .feature-icon {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .feature-title {
+            font-size: 14px;
+            color: var(--cyan);
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .feature-desc {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.5;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                max-height: none;
+                height: auto;
+                min-height: 100vh;
+            }
+
+            .left-panel, .right-panel {
+                padding: 30px 20px;
+            }
+
+            .right-panel {
+                border-right: none;
+                border-top: 2px solid rgba(0, 245, 255, 0.2);
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .logo {
+                font-size: 28px;
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- LEFT PANEL - LOGIN/SIGNUP FORMS -->
+    <div class="left-panel">
+        <div class="logo">⚕️ Y-314</div>
+
+        <!-- LOGIN FORM -->
+        <div id="loginForm" class="form-content">
+            <div class="form-title">Welcome Back</div>
+            <div class="form-subtitle">Sign in to access your medical dashboard</div>
+
+            <form onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="loginEmail">Email Address</label>
+                    <input type="email" id="loginEmail" placeholder="your@email.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" placeholder="••••••••" required>
+                </div>
+
+                <div id="loginError" class="error"></div>
+                <div id="loginSuccess" class="success"></div>
+
+                <button type="submit" class="btn-submit">Login</button>
+            </form>
+
+            <div class="toggle-form-link">
+                Don't have an account? <a onclick="toggleForm()">Sign up here</a>
+            </div>
+
+            <!-- DEMO ACCOUNTS -->
+            <div class="demo-section">
+                <div class="demo-title">Demo Accounts</div>
+                <button class="demo-btn" onclick="demoLogin('student1@biomonitor.ae', 'password123')">
+                    👨‍🎓 Student 1 Demo
+                </button>
+                <button class="demo-btn" onclick="demoLogin('student2@biomonitor.ae', 'password123')">
+                    👩‍🎓 Student 2 Demo
+                </button>
+                <button class="demo-btn" onclick="demoLogin('teacher@biomonitor.ae', 'password123')">
+                    👨‍🏫 Teacher Demo
+                </button>
+            </div>
+        </div>
+
+        <!-- SIGNUP FORM -->
+        <div id="signupForm" class="form-content hidden">
+            <div class="form-title">Create Account</div>
+            <div class="form-subtitle">Join Y-314 BioMonitor Today</div>
+
+            <form onsubmit="handleSignup(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="signupFirstName">First Name</label>
+                        <input type="text" id="signupFirstName" placeholder="First Name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="signupLastName">Last Name</label>
+                        <input type="text" id="signupLastName" placeholder="Last Name" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="signupEmail">Email Address</label>
+                    <input type="email" id="signupEmail" placeholder="your@email.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="signupPassword">Password</label>
+                    <input type="password" id="signupPassword" placeholder="••••••••" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="signupConfirm">Confirm Password</label>
+                    <input type="password" id="signupConfirm" placeholder="••••••••" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="signupAge">Age</label>
+                        <input type="number" id="signupAge" min="10" max="120" placeholder="18">
+                    </div>
+                    <div class="form-group">
+                        <label for="signupGender">Gender</label>
+                        <select id="signupGender">
+                            <option value="">Select Gender</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>User Type</label>
+                    <div class="toggle-group">
+                        <button type="button" class="toggle-btn active" onclick="selectUserType('student', this)">
+                            Student
+                        </button>
+                        <button type="button" class="toggle-btn" onclick="selectUserType('teacher', this)">
+                            Teacher
+                        </button>
+                    </div>
+                </div>
+
+                <div id="signupError" class="error"></div>
+                <div id="signupSuccess" class="success"></div>
+
+                <button type="submit" class="btn-submit">Create Account</button>
+            </form>
+
+            <div class="toggle-form-link">
+                Already have an account? <a onclick="toggleForm()">Login here</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT PANEL - INFO -->
+    <div class="right-panel">
+        <div class="right-panel-content">
+            <h2>🏥 BioMonitor</h2>
+
+            <div class="feature-item">
+                <div class="feature-icon">🧬</div>
+                <div class="feature-title">3D Anatomy</div>
+                <div class="feature-desc">Explore interactive 3D anatomical models in real-time</div>
+            </div>
+
+            <div class="feature-item">
+                <div class="feature-icon">📊</div>
+                <div class="feature-title">Live Simulation</div>
+                <div class="feature-desc">Monitor vital signs with realistic responses</div>
+            </div>
+
+            <div class="feature-item">
+                <div class="feature-icon">🤖</div>
+                <div class="feature-title">AI Assistant</div>
+                <div class="feature-desc">Get instant answers about medical topics</div>
+            </div>
+
+            <div class="feature-item">
+                <div class="feature-icon">📈</div>
+                <div class="feature-title">Data Analysis</div>
+                <div class="feature-desc">Upload and analyze medical data instantly</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ============================================================
+    // AUTHENTICATION SYSTEM - COMPLETE WORKING VERSION
+    // ============================================================
+
+    let userType = 'student';
+
+    // Initialize users database on first load
+    function initializeDatabase() {
+        const existingUsers = localStorage.getItem('Y314_USERS');
+        if (!existingUsers) {
+            const defaultUsers = [
+                {
+                    id: 1,
+                    email: 'student1@biomonitor.ae',
+                    password: 'password123',
+                    name: 'Ali Hassan',
+                    firstName: 'Ali',
+                    lastName: 'Hassan',
+                    age: 17,
+                    gender: 'Male',
+                    userType: 'student',
+                    createdAt: new Date().toISOString()
+                },
+                {
+                    id: 2,
+                    email: 'student2@biomonitor.ae',
+                    password: 'password123',
+                    name: 'Fatima Ahmad',
+                    firstName: 'Fatima',
+                    lastName: 'Ahmad',
+                    age: 16,
+                    gender: 'Female',
+                    userType: 'student',
+                    createdAt: new Date().toISOString()
+                },
+                {
+                    id: 3,
+                    email: 'teacher@biomonitor.ae',
+                    password: 'password123',
+                    name: 'Dr. Mohammed',
+                    firstName: 'Mohammed',
+                    lastName: 'Al-Mansouri',
+                    age: 42,
+                    gender: 'Male',
+                    userType: 'teacher',
+                    createdAt: new Date().toISOString()
+                }
+            ];
+
+            localStorage.setItem('Y314_USERS', JSON.stringify(defaultUsers));
+            console.log('✅ Database initialized with demo users');
+        }
+    }
+
+    // Toggle between login and signup forms
+    function toggleForm() {
+        const loginForm = document.getElementById('loginForm');
+        const signupForm = document.getElementById('signupForm');
+
+        loginForm.classList.toggle('hidden');
+        signupForm.classList.toggle('hidden');
+
+        // Clear errors
+        document.getElementById('loginError').textContent = '';
+        document.getElementById('signupError').textContent = '';
+        document.getElementById('loginSuccess').textContent = '';
+        document.getElementById('signupSuccess').textContent = '';
+    }
+
+    // Select user type during signup
+    function selectUserType(type, element) {
+        userType = type;
+        document.querySelectorAll('.toggle-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        element.classList.add('active');
+    }
+
+    // LOGIN HANDLER
+    function handleLogin(event) {
+        event.preventDefault();
+
+        const email = document.getElementById('loginEmail').value.trim();
+        const password = document.getElementById('loginPassword').value;
+        const errorDiv = document.getElementById('loginError');
+        const successDiv = document.getElementById('loginSuccess');
+
+        // Clear previous messages
+        errorDiv.textContent = '';
+        successDiv.textContent = '';
+
+        // Validation
+        if (!email || !password) {
+            errorDiv.textContent = '❌ Please fill in all fields';
+            return;
+        }
+
+        // Get users from database
+        const users = JSON.parse(localStorage.getItem('Y314_USERS')) || [];
+        const user = users.find(u => u.email === email && u.password === password);
+
+        if (user) {
+            // Create session
+            const session = {
+                id: user.id,
+                email: user.email,
+                name: user.name,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                age: user.age,
+                gender: user.gender,
+                userType: user.userType,
+                loginTime: new Date().toISOString()
+            };
+
+            // Save to localStorage
+            localStorage.setItem('Y314_SESSION', JSON.stringify(session));
+
+            // Initialize user data if not exists
+            const userDataKey = `Y314_USER_DATA_${email}`;
+            if (!localStorage.getItem(userDataKey)) {
+                localStorage.setItem(userDataKey, JSON.stringify({
+                    vitals: [],
+                    illness: [],
+                    analysis: []
+                }));
+            }
+
+            successDiv.textContent = '✅ Login successful! Redirecting...';
+
+            // Redirect to dashboard
+            setTimeout(() => {
+                window.location.href = 'dashboard.html';
+            }, 1000);
+        } else {
+            errorDiv.textContent = '❌ Invalid email or password. Check demo accounts below.';
+            console.log('❌ Login failed - user not found');
+        }
+    }
+
+    // SIGNUP HANDLER
+    function handleSignup(event) {
+        event.preventDefault();
+
+        const firstName = document.getElementById('signupFirstName').value.trim();
+        const lastName = document.getElementById('signupLastName').value.trim();
+        const email = document.getElementById('signupEmail').value.trim();
+        const password = document.getElementById('signupPassword').value;
+        const confirm = document.getElementById('signupConfirm').value;
+        const age = document.getElementById('signupAge').value;
+        const gender = document.getElementById('signupGender').value;
+        const errorDiv = document.getElementById('signupError');
+        const successDiv = document.getElementById('signupSuccess');
+
+        // Clear messages
+        errorDiv.textContent = '';
+        successDiv.textContent = '';
+
+        // Validations
+        if (!firstName || !lastName || !email || !password || !confirm) {
+            errorDiv.textContent = '❌ Please fill in all required fields';
+            return;
+        }
+
+        if (password !== confirm) {
+            errorDiv.textContent = '❌ Passwords do not match';
+            return;
+        }
+
+        if (password.length < 8) {
+            errorDiv.textContent = '❌ Password must be at least 8 characters';
+            return;
+        }
+
+        if (!email.includes('@')) {
+            errorDiv.textContent = '❌ Please enter a valid email';
+            return;
+        }
+
+        // Check if user already exists
+        const users = JSON.parse(localStorage.getItem('Y314_USERS')) || [];
+        if (users.find(u => u.email === email)) {
+            errorDiv.textContent = '❌ Email already registered. Use login or try another email.';
+            return;
+        }
+
+        // Create new user
+        const newUser = {
+            id: users.length + 1,
+            email: email,
+            password: password,
+            name: `${firstName} ${lastName}`,
+            firstName: firstName,
+            lastName: lastName,
+            age: age ? parseInt(age) : null,
+            gender: gender || null,
+            userType: userType,
+            createdAt: new Date().toISOString()
+        };
+
+        // Add to database
+        users.push(newUser);
+        localStorage.setItem('Y314_USERS', JSON.stringify(users));
+
+        // Create session
+        const session = {
+            id: newUser.id,
+            email: newUser.email,
+            name: newUser.name,
+            firstName: newUser.firstName,
+            lastName: newUser.lastName,
+            age: newUser.age,
+            gender: newUser.gender,
+            userType: newUser.userType,
+            loginTime: new Date().toISOString()
+        };
+
+        localStorage.setItem('Y314_SESSION', JSON.stringify(session));
+
+        // Initialize user data
+        const userDataKey = `Y314_USER_DATA_${email}`;
+        localStorage.setItem(userDataKey, JSON.stringify({
+            vitals: [],
+            illness: [],
+            analysis: []
+        }));
+
+        successDiv.textContent = '✅ Account created! Redirecting...';
+
+        // Redirect
+        setTimeout(() => {
+            window.location.href = 'dashboard.html';
+        }, 1000);
+    }
+
+    // DEMO LOGIN
+    function demoLogin(email, password) {
+        document.getElementById('loginEmail').value = email;
+        document.getElementById('loginPassword').value = password;
+
+        // Auto-submit form
+        setTimeout(() => {
+            const form = document.querySelector('form');
+            form.dispatchEvent(new Event('submit'));
+        }, 100);
+    }
+
+    // Check if already logged in
+    function checkExistingSession() {
+        const session = localStorage.getItem('Y314_SESSION');
+        if (session) {
+            window.location.href = 'dashboard.html';
+        }
+    }
+
+    // Initialize on page load
+    window.addEventListener('DOMContentLoaded', () => {
+        console.log('🚀 Y-314 BioMonitor - Login Page Loaded');
+        initializeDatabase();
+        checkExistingSession();
+    });
+</script>
+
+</body>
+</html>
